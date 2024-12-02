@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -15,8 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
-// Define schema for validation
 const schema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z
@@ -31,15 +32,20 @@ type FormData = {
 
 export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/auth/signup", {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -48,12 +54,14 @@ export default function Register() {
       if (!response.ok) {
         throw new Error("Signup failed");
       }
-      alert("Signup successful!");
+
+      toast.success("Signup successful! Please log in.");
+      router.push("/login");
     } catch (error: unknown) {
       if (error instanceof Error) {
-        alert(error.message);
+        toast.error(error.message);
       } else {
-        alert("Something went wrong");
+        toast.error("Something went wrong");
       }
     } finally {
       setIsLoading(false);
@@ -61,7 +69,18 @@ export default function Register() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen mt-20">
+      <nav className="absolute top-0 left-1/2 transform -translate-x-1/2 border-b text-white py-4 w-full text-center flex flex-row items-center justify-between">
+        <Link href={"/"} className="ml-20">
+          {" "}
+          <h1 className="text-2xl font-extralight">AccessNode</h1>{" "}
+        </Link>
+        <Link href={"/documentation"} className="mr-20">
+          <span className="font-extrabold hover:underline hover:underline-offset-4">
+            Documentation
+          </span>
+        </Link>
+      </nav>
       <div className="max-w-md w-full p-8 rounded-lg shadow-lg flex flex-col justify-center items-center">
         <h1 className="text-4xl font-extrabold mb-6 text-center">Sign Up</h1>
         <h3 className="mb-5 text-sm font-light">Create an Account</h3>
@@ -70,7 +89,6 @@ export default function Register() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 border rounded-2xl p-10 h-[70vh] w-[40vw] flex flex-col justify-center items-center"
           >
-            {/* Email Field */}
             <FormField
               name="email"
               control={form.control}
@@ -85,12 +103,15 @@ export default function Register() {
                       className="w-[25vw]"
                     />
                   </FormControl>
-                  {form.formState.errors.email && <FormMessage>{form.formState.errors.email?.message}</FormMessage>}
+                  {form.formState.errors.email && (
+                    <FormMessage>
+                      {form.formState.errors.email?.message}
+                    </FormMessage>
+                  )}
                 </FormItem>
               )}
             />
 
-            {/* Password Field */}
             <FormField
               name="password"
               control={form.control}
@@ -105,12 +126,15 @@ export default function Register() {
                       className="w-[25vw] my-10"
                     />
                   </FormControl>
-                  {form.formState.errors.password && <FormMessage>{form.formState.errors.password?.message}</FormMessage>}
+                  {form.formState.errors.password && (
+                    <FormMessage>
+                      {form.formState.errors.password?.message}
+                    </FormMessage>
+                  )}
                 </FormItem>
               )}
             />
 
-            {/* Submit Button */}
             <Button type="submit" disabled={isLoading} className="w-[10vw]">
               {isLoading ? "Signing Up..." : "Sign Up"}
             </Button>

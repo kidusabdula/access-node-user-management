@@ -1,26 +1,31 @@
 import { useEffect, useState } from "react";
 
-const useAuth = () => {
+type AuthReturnType = {
+  isAuthenticated: boolean;
+  loading: boolean;
+};
+
+const useAuth = (): AuthReturnType => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem("token");
-      setIsAuthenticated(!!token); // Convert the token existence to a boolean
+      setIsAuthenticated(!!token); 
+      setLoading(false); 
     };
 
-    checkAuth();
+    checkAuth(); 
 
-    // Add an event listener for storage changes (e.g., token removal in other tabs)
-    window.addEventListener("storage", checkAuth);
+    window.addEventListener("storage", checkAuth); 
 
-    // Cleanup the event listener on unmount
     return () => {
       window.removeEventListener("storage", checkAuth);
     };
   }, []);
 
-  return isAuthenticated;
+  return { isAuthenticated, loading };
 };
 
 export default useAuth;

@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
         id: true,
         email: true,
         createdAt: true,
+        password: true,
       },
     });
 
