@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  env: {
+    DATABASE_URL: 'postgresql://postgres:1015@localhost:5432/access-node-db',
+  },
 };
 
 export default nextConfig;
